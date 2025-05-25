@@ -7,11 +7,29 @@ import { createToken } from "./auth.utils";
 import config from "../../config";
 
 const register = async (payload: IUser) => {
-  const user = await User.create(payload);
-  return user;
+  // Defensive check
+
+  if (!payload.userName || !payload.email) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Username and email are required"
+    );
+  }
+
+  // Check if userName exists
+
+  const existingUser = await User.findOne({ userName: payload.userName });
+  if (existingUser) {
+    throw new AppError(StatusCodes.CONFLICT, "This username is already taken");
+  }
+  const existingEmail = await User.findOne({ email: payload.email });
+  if (existingEmail) {
+    throw new AppError(StatusCodes.CONFLICT, "This email is already taken");
+  }
+  // All good — create user
+  const result = await User.create(payload);
+  return result;
 };
-
-
 
 // login user
 

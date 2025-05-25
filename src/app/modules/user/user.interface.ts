@@ -4,6 +4,7 @@ export interface IUser {
   userName: string;
   email: string;
   password: string;
+  pin?: string; // Optional, can be null
   googleId?: string;
   storageUsed: number;
   storageLimit: number;

@@ -9,11 +9,11 @@ const userSchema: Schema<IUser, UserModel> = new Schema(
     userName: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    pin: { type: String, required: true, default: null },
     googleId: { type: String, default: null },
     storageUsed: { type: Number, default: 0 },
     storageLimit: { type: Number, default: FIFTEEN_GB },
-    role: { type: String, enum: ["admin", "user"], default: "user" },
-    status: { type: String, enum: ["active", "blocked"], default: "active" },
+    role: { type: String, enum: ["admin", "user"], default: "user" },      
   },
   {
     timestamps: true,
@@ -28,7 +28,7 @@ userSchema.pre("save", async function (next) {
     String(user.password),
     Number(config.bcrypt_salt_rounds)
   );
-  console.log(this);
+
   next();
 });
 

@@ -1,6 +1,8 @@
 import { Router } from "express";
 
 import authRouter from "../modules/auth/auth.route";
+import folderRoute from "../modules/folder/folder.route";
+import fileRouter from "../modules/file/file.route";
 
 const router = Router();
 
@@ -8,6 +10,14 @@ const moduleRoutes = [
   {
     path: "/auth",
     route: authRouter,
+  },
+  {
+    path: "/folder",
+    route: folderRoute,
+  },
+  {
+    path: "/file",
+    route: fileRouter,
   },
 ];
 
