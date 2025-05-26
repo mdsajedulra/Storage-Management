@@ -9,11 +9,8 @@ import {
   sendImageToCloudinary,
 } from "../../utils/sendImageToCloudinary";
 
-
-
-
 const uploadFile = async (file: File, user: JwtPayload) => {
-  console.log(file);
+  // console.log(file);
   const userFromDB = await User.findOne({ email: user.email });
 
   if (!userFromDB) {
@@ -26,15 +23,22 @@ const uploadFile = async (file: File, user: JwtPayload) => {
   };
 
   const result = await FileModel.create(updatedFile);
+  userFromDB.storageUsed += result?.fileSize ?? 0;
+  if( userFromDB.storageUsed > userFromDB.storageLimit) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Storage limit exceeded. Please upgrade your plan or delete some files."
+    );
+  }
+  await userFromDB.save();
   return result; // Replace with actual file upload logic
 };
 // deleteFile function to delete a file by its ID
 export const deleteFile = async (id: string, user: JwtPayload) => {
-
-    const userFromDB = await User.findOne({ email: user.email });
-    if (!userFromDB) {
-      throw new AppError(StatusCodes.NOT_FOUND, "User not found");
-    }
+  const userFromDB = await User.findOne({ email: user.email });
+  if (!userFromDB) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
 
   const file = await FileModel.findById(id);
 
@@ -43,7 +47,10 @@ export const deleteFile = async (id: string, user: JwtPayload) => {
   }
 
   if (!file.owner || userFromDB._id.toString() !== file.owner.toString()) {
-    throw new AppError(StatusCodes.FORBIDDEN, "You do not have permission to delete this file");
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      "You do not have permission to delete this file"
+    );
   }
 
   if (file.isLocked) {
@@ -107,7 +114,6 @@ const duplicateFile = async (id: string, user: JwtPayload) => {
     rest.path as string
   );
 
-
   const duplicateFileData = {
     name: fileupload.display_name || `Copy of ${file.name}`, // Use display_name if available, otherwise use original name
     owner: userFromDB._id, // Assuming user.email is the identifier for the owner
@@ -154,7 +160,10 @@ const renameFile = async (id: string, newName: string, user: JwtPayload) => {
   }
 
   if (!file.owner || userFromDB._id.toString() !== file.owner.toString()) {
-    throw new AppError(StatusCodes.FORBIDDEN, "You do not have permission to rename this file");
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      "You do not have permission to rename this file"
+    );
   }
 
   if (file.isLocked) {
@@ -192,7 +201,10 @@ const makeFavorite = async (id: string, user: JwtPayload) => {
   }
 
   if (!file.owner || userFromDB._id.toString() !== file.owner.toString()) {
-    throw new AppError(StatusCodes.FORBIDDEN, "You do not have permission to mark this file as favorite");
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      "You do not have permission to mark this file as favorite"
+    );
   }
 
   file.isFavorite = true;
@@ -206,7 +218,10 @@ const getFavoriteFiles = async (user: JwtPayload) => {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
 
-  const favoriteFiles = await FileModel.find({ owner: userFromDB._id, isFavorite: true });
+  const favoriteFiles = await FileModel.find({
+    owner: userFromDB._id,
+    isFavorite: true,
+  });
   return favoriteFiles;
 };
 
@@ -222,7 +237,10 @@ const lockFile = async (id: string, user: JwtPayload) => {
   }
 
   if (!file.owner || userFromDB._id.toString() !== file.owner.toString()) {
-    throw new AppError(StatusCodes.FORBIDDEN, "You do not have permission to lock this file");
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      "You do not have permission to lock this file"
+    );
   }
 
   file.isLocked = true;
@@ -236,14 +254,15 @@ const getLockedFiles = async (pin: { pin: string }, user: JwtPayload) => {
   if (!userFromDB) {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
-  if(userFromDB.pin !== pin.pin) {
+  if (userFromDB.pin !== pin.pin) {
     throw new AppError(StatusCodes.UNAUTHORIZED, "Invalid PIN");
   }
-  const lockedFiles = await FileModel.find({ owner: userFromDB._id, isLocked: true });
+  const lockedFiles = await FileModel.find({
+    owner: userFromDB._id,
+    isLocked: true,
+  });
   return lockedFiles;
 };
-
-
 
 export const fileService = {
   uploadFile,
@@ -253,5 +272,5 @@ export const fileService = {
   makeFavorite,
   getFavoriteFiles,
   lockFile,
-  getLockedFiles
+  getLockedFiles,
 };

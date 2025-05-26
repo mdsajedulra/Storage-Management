@@ -5,6 +5,7 @@ import { User } from "../user/user.model";
 import { ILoginUser } from "./auth.interface";
 import { createToken } from "./auth.utils";
 import config from "../../config";
+import { JwtPayload } from "jsonwebtoken";
 
 const register = async (payload: IUser) => {
   // Defensive check
@@ -63,7 +64,30 @@ const login = async (payload: ILoginUser) => {
     refreshToken,
   };
 };
+
+const changePassword = async (
+  user: JwtPayload,
+  oldPassword: string,
+  newPassword: string
+) => {
+  console.log(user);
+  const userFromDB = await User.findOne({ email: user.email }).select("+password");
+  if (!userFromDB) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  if (!(await User.isPasswordMatched(oldPassword, userFromDB.password))) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Old password is incorrect");
+  }
+
+  userFromDB.password = newPassword;
+  await userFromDB.save();
+
+  return userFromDB;
+};
+
 export const authService = {
   register,
   login,
+  changePassword,
 };

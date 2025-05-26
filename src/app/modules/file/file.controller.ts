@@ -7,7 +7,7 @@ import { fileService } from "./file.service";
 const uploadFile = catchAsync(async (req, res) => {
   const file = req.file;
   const data = req.body;
-  console.log(file, data);
+ 
   const fileupload = await sendImageToCloudinary(
     file?.originalname as string,
     file?.path as string
