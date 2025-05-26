@@ -35,7 +35,7 @@ const uploadFile = async (file: File, user: JwtPayload) => {
 
   await userFromDB.save();
 
-  return result; 
+  return result;
 };
 
 // deleteFile function to delete a file by its ID
@@ -274,9 +274,34 @@ const getFileByType = async (fileType: string, user: JwtPayload) => {
   if (!userFromDB) {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
+  console.log(fileType, userFromDB._id);
   const files = await FileModel.find({
     owner: userFromDB._id,
     fileType,
+  });
+  return files;
+};
+
+const getFileByDate = async (date: string, user: JwtPayload) => {
+  const userFromDB = await User.findOne({ email: user.email });
+  if (!userFromDB) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+  // Step 1: Start of the day (00:00:00)
+  const dayStart = new Date(date);
+  dayStart.setUTCHours(0, 0, 0, 0);
+
+  // Step 2: End of the day (23:59:59)
+  const dayEnd = new Date(date);
+  dayEnd.setUTCHours(23, 59, 59, 999);
+
+  // Step 3: Find files created on that date
+  const files = await FileModel.find({
+    owner: userFromDB._id,
+    createdAt: {
+      $gte: dayStart,
+      $lte: dayEnd,
+    },
   });
   return files;
 };
@@ -290,5 +315,6 @@ export const fileService = {
   getFavoriteFiles,
   lockFile,
   getLockedFiles,
-  getFileByType
+  getFileByType,
+  getFileByDate
 };

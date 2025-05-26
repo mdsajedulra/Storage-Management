@@ -59,10 +59,16 @@ fileRouter.put(
 );
 
 fileRouter.get(
-  "/getFileByType",
+  "/",
   auth("user"),
 
   fileController.getFileByType
+);
+fileRouter.get(
+  "/getFileByDate",
+  auth("user"),
+
+  fileController.getFileByDate
 );
 
 export default fileRouter;

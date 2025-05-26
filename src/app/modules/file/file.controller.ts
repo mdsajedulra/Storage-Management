@@ -16,11 +16,9 @@ const uploadFile = catchAsync(async (req, res) => {
     file?.path as string
   );
 
-
   if (fileupload.format) {
     fileupload.format = getCategoryFromExtension(fileupload.format as string);
     console.log(fileupload.format, "format from utils");
-
   }
   console.log(fileupload.format, "type from controller");
 
@@ -137,9 +135,22 @@ const getLockedFiles = catchAsync(async (req, res) => {
 });
 
 const getFileByType = catchAsync(async (req, res) => {
-  const { fileType } = req.query;
+  const { type } = req.query;
+  console.log(type);
 
-  const result = await fileService.getFileByType(fileType as string, req.user);
+  const result = await fileService.getFileByType(type as string, req.user);
+  sendResponse(res, {
+    data: result,
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Files retrieved successfully",
+  });
+});
+const getFileByDate = catchAsync(async (req, res) => {
+  const { date } = req.query;
+  console.log(date);
+
+  const result = await fileService.getFileByDate(date as string, req.user);
   sendResponse(res, {
     data: result,
     statusCode: StatusCodes.OK,
@@ -158,4 +169,6 @@ export const fileController = {
   lockFile,
   getLockedFiles,
   getFileByType,
+
+  getFileByDate,
 };
