@@ -159,11 +159,24 @@ const getFileByDate = catchAsync(async (req, res) => {
   });
 });
 
+const copyFileToFolder = catchAsync(async (req, res) => {
+  const { fileId, folderId } = req.body;
+  console.log(fileId, folderId, "fileId and folderId from controller");
+    const result = await fileService.copyFileToFolder(fileId, folderId, req.user);
+    sendResponse(res, {
+      data: result,
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "File copied to folder successfully",
+    });
+});
+
 export const fileController = {
   uploadFile,
   deleteFile,
   duplicateFile,
   renameFile,
+  copyFileToFolder,
   makeFavorite,
   getFavoriteFiles,
   lockFile,

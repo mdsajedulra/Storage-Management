@@ -8,6 +8,7 @@ import {
   renameImageInCloudinary,
   sendImageToCloudinary,
 } from "../../utils/sendImageToCloudinary";
+import mongoose from "mongoose";
 
 const uploadFile = async (file: File, user: JwtPayload) => {
   // console.log(file);
@@ -306,6 +307,34 @@ const getFileByDate = async (date: string, user: JwtPayload) => {
   return files;
 };
 
+const copyFileToFolder = async (
+  fileId: string,
+  folderId: string,
+  user: JwtPayload
+) => {
+  const userFromDB = await User.findOne({ email: user.email });
+  console.log(fileId, folderId);
+  if (!userFromDB) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  const file = await FileModel.findById(fileId);
+  if (!file) {
+    throw new AppError(StatusCodes.NOT_FOUND, "File not found");
+  }
+
+  if (!file.owner || userFromDB._id.toString() !== file.owner.toString()) {
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      "You do not have permission to copy this file"
+    );
+  }
+
+  file.folderId = new mongoose.Types.ObjectId(folderId);
+  await file.save();
+  return file;
+};
+
 export const fileService = {
   uploadFile,
   deleteFile,
@@ -316,5 +345,6 @@ export const fileService = {
   lockFile,
   getLockedFiles,
   getFileByType,
-  getFileByDate
+  getFileByDate,
+  copyFileToFolder,
 };

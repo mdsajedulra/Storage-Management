@@ -33,7 +33,7 @@ fileRouter.post(
   fileController.duplicateFile
 );
 fileRouter.put(
-  "/:id",
+  "/rename/:id",
   auth("user"),
 
   fileController.renameFile
@@ -43,6 +43,12 @@ fileRouter.put(
   auth("user"),
 
   fileController.makeFavorite
+);
+fileRouter.put(
+  "/copy",
+  auth("user"),
+
+  fileController.copyFileToFolder
 );
 fileRouter.get(
   "/getfavorite",

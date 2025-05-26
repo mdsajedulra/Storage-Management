@@ -15,26 +15,17 @@ const getStorage = async (user: JwtPayload) => {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
 
-  const fileUsageSummary = await FileModel.aggregate([
-    {
-      $match: {
-        owner: new mongoose.Types.ObjectId(userFromDB._id),
-      },
-    },
-    {
-      $group: {
-        _id: {
-          $cond: [
-            { $in: ["$fileType", ["jpg", "jpeg", "png", "gif", "webp"]] },
-            "image",
-            "document",
-          ],
-        },
-      },
-    },
-  ]);
+const result = await FileModel.aggregate([
+  {
+    $group: {
+      _id: "$fileType",
+      totalSize: { $sum: "$fileSize" },
+      count: { $sum: 1 }
+    }
+  }
+]);
 
-  return fileUsageSummary;
+  return result;
 };
 
 export const storageService = {
