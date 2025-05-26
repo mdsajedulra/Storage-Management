@@ -10,7 +10,10 @@ fileRouter.post(
   auth("user"),
   upload.single("file"),
   function (req, res, next) {
-    req.body = JSON.parse(req.body.data);
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+      next();
+    }
     next();
   },
   fileController.uploadFile
@@ -47,7 +50,6 @@ fileRouter.get(
 
   fileController.getFavoriteFiles
 );
-
 
 fileRouter.put(
   "/lock/:id",
