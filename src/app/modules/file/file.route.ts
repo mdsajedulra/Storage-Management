@@ -59,10 +59,10 @@ fileRouter.put(
 );
 
 fileRouter.get(
-  "/getlock",
+  "/getFileByType",
   auth("user"),
 
-  fileController.getLockedFiles
+  fileController.getFileByType
 );
 
 export default fileRouter;

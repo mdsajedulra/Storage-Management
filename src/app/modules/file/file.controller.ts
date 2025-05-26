@@ -3,26 +3,37 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { fileService } from "./file.service";
+import { getCategoryFromExtension } from "./file.utils";
 
 const uploadFile = catchAsync(async (req, res) => {
   const file = req.file;
   const data = req.body;
- 
+
+  // console.log(file, "file from controller");
+
   const fileupload = await sendImageToCloudinary(
     file?.originalname as string,
     file?.path as string
   );
 
+
+  if (fileupload.format) {
+    fileupload.format = getCategoryFromExtension(fileupload.format as string);
+    console.log(fileupload.format, "format from utils");
+
+  }
+  console.log(fileupload.format, "type from controller");
+
   const fileData = {
     name: fileupload.original_filename,
     fileSize: fileupload.bytes,
-    fileType: fileupload.format,
+    fileType: fileupload.format || "note",
     path: fileupload.secure_url,
     publicId: fileupload.public_id,
     folderId: data.folderId || null, // Assuming folderId is passed in the request body
   };
 
-  // console.log("from controller", fileupload);
+  console.log("from controller", fileData);
   if (!file) {
     res.status(400).json({ message: "No file uploaded" });
     return;
@@ -125,6 +136,18 @@ const getLockedFiles = catchAsync(async (req, res) => {
   });
 });
 
+const getFileByType = catchAsync(async (req, res) => {
+  const { fileType } = req.query;
+
+  const result = await fileService.getFileByType(fileType as string, req.user);
+  sendResponse(res, {
+    data: result,
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Files retrieved successfully",
+  });
+});
+
 export const fileController = {
   uploadFile,
   deleteFile,
@@ -134,4 +157,5 @@ export const fileController = {
   getFavoriteFiles,
   lockFile,
   getLockedFiles,
+  getFileByType,
 };

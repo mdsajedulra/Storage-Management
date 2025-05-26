@@ -22,17 +22,22 @@ const uploadFile = async (file: File, user: JwtPayload) => {
     owner: userFromDB._id,
   };
 
+  console.log(updatedFile);
   const result = await FileModel.create(updatedFile);
+
   userFromDB.storageUsed += result?.fileSize ?? 0;
-  if( userFromDB.storageUsed > userFromDB.storageLimit) {
+  if (userFromDB.storageUsed > userFromDB.storageLimit) {
     throw new AppError(
       StatusCodes.BAD_REQUEST,
       "Storage limit exceeded. Please upgrade your plan or delete some files."
     );
   }
+
   await userFromDB.save();
-  return result; // Replace with actual file upload logic
+
+  return result; 
 };
+
 // deleteFile function to delete a file by its ID
 export const deleteFile = async (id: string, user: JwtPayload) => {
   const userFromDB = await User.findOne({ email: user.email });
@@ -264,6 +269,18 @@ const getLockedFiles = async (pin: { pin: string }, user: JwtPayload) => {
   return lockedFiles;
 };
 
+const getFileByType = async (fileType: string, user: JwtPayload) => {
+  const userFromDB = await User.findOne({ email: user.email });
+  if (!userFromDB) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+  const files = await FileModel.find({
+    owner: userFromDB._id,
+    fileType,
+  });
+  return files;
+};
+
 export const fileService = {
   uploadFile,
   deleteFile,
@@ -273,4 +290,5 @@ export const fileService = {
   getFavoriteFiles,
   lockFile,
   getLockedFiles,
+  getFileByType
 };

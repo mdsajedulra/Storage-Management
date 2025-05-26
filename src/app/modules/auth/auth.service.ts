@@ -49,6 +49,8 @@ const login = async (payload: ILoginUser) => {
   if (userStatus === "blocked") {
     throw new AppError(StatusCodes.FORBIDDEN, "This user is blocked ! !");
   }
+  console.log(payload?.password, user?.password);
+  console.log(await User.isPasswordMatched(payload?.password, user?.password));
 
   if (!(await User.isPasswordMatched(payload?.password, user?.password))) {
     throw new AppError(StatusCodes.FORBIDDEN, "Password do not matched");
@@ -59,11 +61,15 @@ const login = async (payload: ILoginUser) => {
     role: user.role ?? "",
   };
 
-  const accessToken = createToken(jwtPayload, config.secret as string, 60 * 60);
+  const accessToken = createToken(
+    jwtPayload,
+    config.secret as string,
+    60 * 60 * 24 // 24 hours
+  );
   const refreshToken = createToken(
     jwtPayload,
     config.secret as string,
-    60 * 60 * 60
+    60 * 60
   );
   return {
     accessToken,

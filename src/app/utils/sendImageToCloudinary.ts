@@ -17,8 +17,10 @@ export const sendImageToCloudinary = (
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       path,
-      { public_id: imageName.trim() },
+
+      { public_id: imageName.trim(), resource_type: "auto" },
       function (error, result) {
+        // console.log(result);
         if (error) {
           reject(error);
         }
@@ -71,16 +73,12 @@ export const renameImageInCloudinary = async (
   newPublicId: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    cloudinary.uploader.rename(
-      oldPublicId,
-      newPublicId,
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
+    cloudinary.uploader.rename(oldPublicId, newPublicId, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
       }
-    );
+    });
   });
 };
