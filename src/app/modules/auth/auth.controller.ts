@@ -43,8 +43,23 @@ const changePassword = catchAsync(async (req, res) => {
   });
 });
 
+
+const changeUserName = catchAsync(async (req, res) => {
+  const payload = req.body;
+  const { newUserName } = payload;
+  const result = await authService.changeUserName(req.user, newUserName);
+
+  sendResponse(res, {
+    data: result,
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: `User name changed successfully`,
+  });
+});
+
 export const authController = {
   register,
   login,
   changePassword,
+  changeUserName,
 };

@@ -71,7 +71,9 @@ const changePassword = async (
   newPassword: string
 ) => {
   console.log(user);
-  const userFromDB = await User.findOne({ email: user.email }).select("+password");
+  const userFromDB = await User.findOne({ email: user.email }).select(
+    "+password"
+  );
   if (!userFromDB) {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
@@ -86,8 +88,28 @@ const changePassword = async (
   return userFromDB;
 };
 
+const changeUserName = async (user: JwtPayload, newUserName: string) => {
+  const userFromDB = await User.findOne({ email: user.email });
+  if (!userFromDB) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  // check if the new username already exists
+  const existingUser = await User.findOne({ userName: newUserName });
+  if (existingUser) {
+    throw new AppError(StatusCodes.CONFLICT, "This username is already taken");
+  }
+  // update the username
+
+  userFromDB.userName = newUserName;
+  await userFromDB.save();
+
+  return userFromDB;
+};
+
 export const authService = {
   register,
   login,
   changePassword,
+  changeUserName,
 };
