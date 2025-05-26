@@ -1,12 +1,13 @@
 import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
-import { error } from "console";
+
 import fs from "fs";
 import multer from "multer";
+import config from "../config";
 
 cloudinary.config({
-  cloud_name: "dwuho3oin",
-  api_key: "524431726747944",
-  api_secret: "s3ZBeFFDqAM-0PZlp78eDoj4wlI", // Click 'View API Keys' above to copy your API secret
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret,
 });
 
 export const sendImageToCloudinary = (

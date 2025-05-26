@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import config from "../config";
 
 // Create a test account or replace with real credentials.
 const transporter = nodemailer.createTransport({
@@ -6,8 +7,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: "mdsajedulra@gmail.com",
-    pass: "qipe suwn sner cyav",
+    user: config.nodemailer.user, // generated ethereal user
+    pass: config.nodemailer.pass,
   },
 });
 
