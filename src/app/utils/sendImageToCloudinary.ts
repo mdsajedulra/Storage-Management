@@ -3,7 +3,7 @@ import { UploadApiResponse, v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import multer from "multer";
 import config from "../config";
-
+console.log(config.cloudinary);
 cloudinary.config({
   cloud_name: config.cloudinary.cloud_name,
   api_key: config.cloudinary.api_key,
